@@ -40,26 +40,26 @@ It empirically demonstrates the architectural, algorithmic, and throughput diffe
 
 ```mermaid
 graph TD
-    User([User / CLI / Dashboard]) --> CLI[Command-Line Interface / cli.cpp]
-    CLI --> Dispatcher[Operation Dispatcher / image_ops.cpp]
+    User["User / CLI / Dashboard"] --> CLI["Command-Line Interface (cli.cpp)"]
+    CLI --> Dispatcher["Operation Dispatcher (image_ops.cpp)"]
 
-    subgraph CPU_Engine [CPU Engine (C++17)]
-        Dispatcher -->|Backend::CPU| CPU_Gray[cpuGrayscale]
-        Dispatcher -->|Backend::CPU| CPU_Blur[cpuGaussianBlur]
-        Dispatcher -->|Backend::CPU| CPU_Sharp[cpuSharpen]
-        Dispatcher -->|Backend::CPU| CPU_Sobel[cpuSobel]
+    subgraph CPU_Engine ["CPU Engine (C++17)"]
+        Dispatcher -->|"Backend: CPU"| CPU_Gray["cpuGrayscale"]
+        Dispatcher -->|"Backend: CPU"| CPU_Blur["cpuGaussianBlur"]
+        Dispatcher -->|"Backend: CPU"| CPU_Sharp["cpuSharpen"]
+        Dispatcher -->|"Backend: CPU"| CPU_Sobel["cpuSobel"]
     end
 
-    subgraph CUDA_Engine [CUDA GPU Engine (NVIDIA CUDA C++)]
-        Dispatcher -->|Backend::CUDA| CUDA_H2D[Host-to-Device Memory Transfer]
-        CUDA_H2D --> CUDA_Kernels[2D CUDA Kernels: 16x16 Blocks]
-        CUDA_Kernels --> CUDA_D2H[Device-to-Host Memory Transfer]
+    subgraph CUDA_Engine ["CUDA GPU Engine (NVIDIA CUDA C++)"]
+        Dispatcher -->|"Backend: CUDA"| CUDA_H2D["Host-to-Device Memory Transfer"]
+        CUDA_H2D --> CUDA_Kernels["2D CUDA Kernels (16x16 Blocks)"]
+        CUDA_Kernels --> CUDA_D2H["Device-to-Host Memory Transfer"]
     end
 
-    CPU_Engine --> Verification[Pixel-by-Pixel Verification & Output]
+    CPU_Engine --> Verification["Pixel-by-Pixel Verification & Output"]
     CUDA_Engine --> Verification
-    Verification --> Benchmarks[Benchmark Engine & CSV Export]
-    Benchmarks --> Dashboard[Streamlit Interactive Dashboard]
+    Verification --> Benchmarks["Benchmark Engine & CSV Export"]
+    Benchmarks --> Dashboard["Streamlit Interactive Dashboard"]
 ```
 
 ---

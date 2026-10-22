@@ -4,27 +4,27 @@ Parallel is structured as a dual-backend image processing and performance benchm
 
 ```mermaid
 graph TD
-    User([User / CLI / Dashboard]) --> CLI[Command-Line Interface / cli.cpp]
-    CLI --> Dispatcher[Operation Dispatcher / image_ops.cpp]
+    User["User / CLI / Dashboard"] --> CLI["Command-Line Interface (cli.cpp)"]
+    CLI --> Dispatcher["Operation Dispatcher (image_ops.cpp)"]
 
-    subgraph CPU_Backend [CPU Engine (C++17)]
-        Dispatcher -->|Backend::CPU| CPU_Gray[cpuGrayscale]
-        Dispatcher -->|Backend::CPU| CPU_Blur[cpuGaussianBlur]
-        Dispatcher -->|Backend::CPU| CPU_Sharp[cpuSharpen]
-        Dispatcher -->|Backend::CPU| CPU_Sobel[cpuSobel]
+    subgraph CPU_Backend ["CPU Engine (C++17)"]
+        Dispatcher -->|"Backend: CPU"| CPU_Gray["cpuGrayscale"]
+        Dispatcher -->|"Backend: CPU"| CPU_Blur["cpuGaussianBlur"]
+        Dispatcher -->|"Backend: CPU"| CPU_Sharp["cpuSharpen"]
+        Dispatcher -->|"Backend: CPU"| CPU_Sobel["cpuSobel"]
     end
 
-    subgraph CUDA_Backend [CUDA Engine (NVIDIA CUDA C++)]
-        Dispatcher -->|Backend::CUDA| CUDA_H2D[Host-to-Device Transfer]
-        CUDA_H2D --> CUDA_Kernels[2D CUDA Kernels (16x16 Blocks)]
-        CUDA_Kernels --> CUDA_D2H[Device-to-Host Transfer]
+    subgraph CUDA_Backend ["CUDA Engine (NVIDIA CUDA C++)"]
+        Dispatcher -->|"Backend: CUDA"| CUDA_H2D["Host-to-Device Transfer"]
+        CUDA_H2D --> CUDA_Kernels["2D CUDA Kernels (16x16 Blocks)"]
+        CUDA_Kernels --> CUDA_D2H["Device-to-Host Transfer"]
     end
 
-    CPU_Backend --> Output[Image Output & Verification]
+    CPU_Backend --> Output["Image Output & Verification"]
     CUDA_Backend --> Output
-    Output --> Metrics[Benchmark & Timing Analysis]
-    Metrics --> CSV[(results/benchmark.csv)]
-    CSV --> Dashboard[Streamlit Dashboard / app.py]
+    Output --> Metrics["Benchmark & Timing Analysis"]
+    Metrics --> CSV["results/benchmark.csv"]
+    CSV --> Dashboard["Streamlit Dashboard (app.py)"]
 ```
 
 ## 1. Memory Layout and Thread Decompositions
