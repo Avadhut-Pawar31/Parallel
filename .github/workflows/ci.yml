@@ -1,0 +1,74 @@
+name: Parallel CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up C++ compiler and Ninja
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential cmake ninja-build
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements-dev.txt
+
+    - name: Configure CMake (CPU-only mode)
+      run: |
+        cmake -B build -G "Ninja" \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DPARALLEL_ENABLE_CUDA=OFF \
+          -DPARALLEL_BUILD_TESTS=ON
+
+    - name: Build Parallel binaries
+      run: |
+        cmake --build build
+
+    - name: Run C++ Unit Tests (CTest)
+      run: |
+        ctest --test-dir build --output-on-failure
+
+    - name: Run Direct C++ Test Runner
+      run: |
+        ./build/bin/test_cpu_ops
+
+    - name: Generate Test Samples
+      run: |
+        python scripts/generate_samples.py
+
+    - name: Run CLI Processing Verification
+      run: |
+        ./build/bin/parallel process -i samples/sample.png --op grayscale -b cpu -o results/sample_gray.png
+        ./build/bin/parallel process -i samples/sample.png --op blur -b cpu -o results/sample_blur.png
+        ./build/bin/parallel process -i samples/sample.png --op sharpen -b cpu -o results/sample_sharp.png
+        ./build/bin/parallel process -i samples/sample.png --op sobel -b cpu -o results/sample_sobel.png
+
+    - name: Run CLI Benchmarks
+      run: |
+        ./build/bin/parallel benchmark -i samples/checkerboard.png --op all -b cpu -n 5 -w 1 -o results/benchmark.csv
+
+    - name: Run Python Automated Tests (pytest)
+      run: |
+        pytest tests/python/ -v
+
+    - name: Run Plot and Report Generation
+      run: |
+        python scripts/plot_results.py --csv results/benchmark.csv --output-dir results/
+        python scripts/generate_report.py --csv results/benchmark.csv --output results/benchmark_report.md

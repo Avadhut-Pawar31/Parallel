@@ -1,0 +1,48 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "default-cpu",
+      "displayName": "CPU Release",
+      "description": "Standard CPU release build with optimizations",
+      "binaryDir": "${sourceDir}/build/cpu-release",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "PARALLEL_ENABLE_CUDA": "OFF",
+        "PARALLEL_BUILD_TESTS": "ON"
+      }
+    },
+    {
+      "name": "cuda-release",
+      "displayName": "CUDA Release",
+      "description": "GPU-accelerated release build with CUDA enabled",
+      "binaryDir": "${sourceDir}/build/cuda-release",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "PARALLEL_ENABLE_CUDA": "ON",
+        "PARALLEL_BUILD_TESTS": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "build-cpu",
+      "configurePreset": "default-cpu"
+    },
+    {
+      "name": "build-cuda",
+      "configurePreset": "cuda-release"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "test-cpu",
+      "configurePreset": "default-cpu",
+      "output": {
+        "outputOnFailure": true
+      }
+    }
+  ]
+}
